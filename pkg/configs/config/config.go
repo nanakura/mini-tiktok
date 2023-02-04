@@ -22,7 +22,11 @@ type GlobalConfig struct {
 		Username string
 		Password string
 	} `mapstructure:"ftp"`
-	StaticConfig struct {
-		Url string
-	} `mapstructure:"static"`
+	MinioConfig struct {
+		BucketName string `mapstructure:"bucketName"`
+		Endpoint       string `mapstructure:"endpoint"`
+		AccessKeyID    string `mapstructure:"accessKeyID"`
+		SecretAccessKey string `mapstructure:"secretAccessKey"`
+		UseSSL bool `mapstructure:"useSSL"`
+	} `mapstructure:"minio"`
 }

@@ -5,17 +5,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mini_tiktok/cmd/video/mw/minio"
 	"strconv"
 	"time"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
 	"github.com/nanakura/go-ramda"
-	"mini_tiktok/cmd/video/ftpUtil"
 	favutil "mini_tiktok/cmd/video/utils"
 	videoservice "mini_tiktok/kitex_gen/videoservice"
 	"mini_tiktok/pkg/cache"
-	"mini_tiktok/pkg/configs/config"
 	"mini_tiktok/pkg/consts"
 	"mini_tiktok/pkg/dal/model"
 	"mini_tiktok/pkg/dal/query"
@@ -28,13 +27,20 @@ type VideoServiceImpl struct{}
 
 // PublishAction implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) PublishAction(ctx context.Context, req *videoservice.DouyinPublishActionRequest) (resp *videoservice.DouyinPublishActionResponse, err error) {
-	data := bytes.NewBufferString(string(req.Data))
+	data := string(req.Data)
+	dataReader := bytes.NewBufferString(data)
 	uuidv4, _ := uuid.NewUUID()
+	objName := fmt.Sprintf("%s.mp4", uuidv4)
+	_, err = minio.UploadFile(ctx, objName, dataReader, int64(len(req.Data)))
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("%s.mp4", uuidv4.String())
 	tv := query.Q.TVideo
 	cliams, _ := utils.CheckToken(req.Token)
 	userId := cliams.UserId
-	playUrl := fmt.Sprintf("%s/%s", config.GlobalConfigs.StaticConfig.Url, path)
+	playUrl := fmt.Sprintf("%s/%s", "", path)
+
 	err = tv.WithContext(context.Background()).
 		Create(&model.TVideo{
 			AuthorID:      userId,
@@ -46,12 +52,8 @@ func (s *VideoServiceImpl) PublishAction(ctx context.Context, req *videoservice.
 			Title:         req.Title,
 			CreateDate:    time.Now(),
 		})
+
 	if err != nil {
-		klog.Error("Error uploading file:", err)
-		err = fmt.Errorf("视频保存失败：%w", err)
-		return
-	}
-	if err = ftpUtil.FtpClient.Stor(path, data); err != nil {
 		klog.Error("Error uploading file:", err)
 		err = fmt.Errorf("视频保存失败：%w", err)
 		return

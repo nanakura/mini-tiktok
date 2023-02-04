@@ -14,7 +14,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"mini_tiktok/cmd/video/ftpUtil"
+	"mini_tiktok/cmd/video/mw/minio"
 	"mini_tiktok/cmd/video/rpc"
 	"mini_tiktok/kitex_gen/videoservice/videoservice"
 	"mini_tiktok/pkg/cache"
@@ -32,7 +32,7 @@ func Init() {
 	cache.Init()
 	rpc.Init()
 	dal.Init()
-	ftpUtil.Init()
+	minio.Init()
 	task.Init()
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelInfo)

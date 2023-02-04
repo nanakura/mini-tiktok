@@ -20,5 +20,9 @@ ftp:
   username: Anonymous
   password:
 
-static:
-  url: localhost:8080
+minio:
+  bucketName: test
+  endpoint: 127.0.0.1:9000
+  accessKeyID:
+  secretAccessKey:
+  useSSL: false
